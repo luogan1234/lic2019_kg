@@ -1,0 +1,6 @@
+input_data/
+model_data/
+tmp/
+result/
+__pycache__/
+*.pyc

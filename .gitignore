@@ -4,3 +4,4 @@ tmp/
 result/
 __pycache__/
 *.pyc
+.idea

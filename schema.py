@@ -39,7 +39,7 @@ class Schemas:
         for i, schema in enumerate(self.schemas):
             if schema.match2(subject_type, predicate, object_type):
                 return i
-        return 50
+        raise ValueError
 
     def add_schema(self, s):
         self.schemas.append(s)

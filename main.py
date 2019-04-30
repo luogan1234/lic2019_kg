@@ -8,11 +8,10 @@ import pickle
 import model
 
 class DataCollection:
-    def __init__(self, vocab, schemas, train_data, dev_data, test_data):
+    def __init__(self, vocab, schemas, train_data, test_data):
         self.vocab = vocab
         self.schemas = schemas
         self.train_data = train_data
-        self.dev_data = dev_data
         self.test_data = test_data
 
 def load_data():
@@ -25,12 +24,10 @@ def load_data():
         vocab = Vocab.Vocab()
         schemas = Schema.load_schema()
         train_data = Data.load_data(paras.TRAIN_DATA, schemas)
-        dev_data = Data.load_data(paras.DEV_DATA, schemas)
         test_data = Data.load_data(paras.TEST_DATA, schemas)
         train_data.get_indexes(vocab)
-        dev_data.get_indexes(vocab)
         test_data.get_indexes(vocab)
-        data_collection = DataCollection(vocab, schemas, train_data, dev_data, test_data)
+        data_collection = DataCollection(vocab, schemas, train_data, test_data)
         with open(paras.DATA_COL, 'wb') as f:
             pickle.dump(data_collection, f)
     end = time.time()
@@ -50,4 +47,4 @@ def main():
 if __name__ == '__main__':
     load_data()
     #test()
-    #main()
+    main()

@@ -16,23 +16,21 @@ class BatchData:
     def __init__(self):
         self.index = []
         self.pos = []
-        self.entity_label = []
-        self.subject_start = []
-        self.subject_end = []
-        self.object_start = []
-        self.object_end = []
-        self.relation_type = []
+        self.output = []
+        self.max_len = paras.MAX_LEN
 
     def add(self, data):
-        index = data.word_indexes + [0] * (paras.MAX_LEN - data.text_len)
-        pos = data.pos_indexes + [0] * (paras.MAX_LEN - data.text_len)
-        entity_label = data.get_step1_data()
-        relation = data.get_step2_data()
-        self.index.append(index)
-        self.pos.append(pos)
-        self.entity_label.append(entity_label)
-        self.subject_start.append(relation['subject'].start)
-        self.subject_end.append(relation['subject'].end)
-        self.object_start.append(relation['object'].start)
-        self.object_end.append(relation['object'].end)
-        self.relation_type.append(relation['type'])
+        self.index.append(data.word_indexes)
+        self.pos.append(data.pos_indexes)
+        self.output.append(data.get_output())
+        self.max_len = max(self.max_len, data.text_len)
+
+    def _padding(self, a):
+        return a + [0] * (self.max_len - len(a))
+
+    def padding(self):
+        for i in range(len(self.index)):
+            self.index[i] = self._padding(self.index[i])
+            self.pos[i] = self._padding(self.pos[i])
+            for j in range(self.max_len - len(self.output[i])):
+                self.output[i].append([0] * (paras.SCHEMA_NUMBER * 2))

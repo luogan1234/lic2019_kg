@@ -1,8 +1,15 @@
 import json
 import paras
 
+merge_dict = {'历史人物': '人物', '国家': '地点', '行政区': '地点', '图书作品': '书籍', '企业': '机构'}
 class Schema:
     def __init__(self, subject_type, predicate, object_type):
+        self.subject_type_raw = subject_type
+        if subject_type in merge_dict:
+            subject_type = merge_dict[subject_type]
+        self.object_type_raw = object_type
+        if object_type in merge_dict:
+            object_type = merge_dict[object_type]
         self.subject_type = subject_type
         self.predicate = predicate
         self.object_type = object_type
@@ -10,11 +17,11 @@ class Schema:
     def match(self, subject_type, object_type):
         return self.subject_type == subject_type and self.object_type == object_type
 
-    def match2(self, subject_type, predicate, object_type):
-        return self.subject_type == subject_type and self.predicate == predicate and self.object_type == object_type
+    def match2(self, predicate):
+        return self.predicate == predicate
 
     def output_result(self):
-        res = {'subject_type': self.subject_type, 'predicate': self.predicate, 'object_type': self.object_type}
+        res = {'subject_type': self.subject_type_raw, 'predicate': self.predicate, 'object_type': self.object_type_raw}
         return res
 
     @staticmethod
@@ -35,10 +42,17 @@ class Schemas:
                 res.append(i)
         return res
 
-    def predicate_to_id(self, subject_type, predicate, object_type):
+    def predicate_to_id(self, predicate):
         for i, schema in enumerate(self.schemas):
-            if schema.match2(subject_type, predicate, object_type):
+            if schema.match2(predicate):
                 return i
+        raise ValueError
+    
+    def entity_to_id(self, entity):
+        if entity in merge_dict:
+            entity = merge_dict[entity]
+        if entity in self.types:
+            return self.types.index(entity)
         raise ValueError
 
     def add_schema(self, s):
@@ -49,12 +63,6 @@ class Schemas:
             self.types.append(s.object_type)
         self.type_len = len(self.types)
 
-    def entity_to_id(self, entity_type):
-        if entity_type in self.types:
-            return self.types.index(entity_type)
-        else:
-            return -1
-
     def output_result(self, index):
         if index in range(50):
             return self.schemas[index].output_result()
@@ -64,6 +72,7 @@ class Schemas:
     def print_info(self):
         print('schema number:', len(self.schemas))
         print('entity types:', len(self.types))
+        print(self.types)
 
 def load_schema():
     s = Schemas()
@@ -72,7 +81,7 @@ def load_schema():
         for line in tmp:
             if line == '':
                 continue
-            a = json.loads(line.lower())
+            a = json.loads(line)
             b = Schema(a['subject_type'], a['predicate'], a['object_type'])
             s.add_schema(b)
     return s
@@ -80,5 +89,5 @@ def load_schema():
 if __name__ == '__main__':
     s = load_schema()
     s.print_info()
-    for schema in s.schemas:
-        print(s.find_matched_schema_ids(schema.subject_type, schema.object_type))
+    #for schema in s.schemas:
+    #    print(s.find_matched_schema_ids(schema.subject_type, schema.object_type))
